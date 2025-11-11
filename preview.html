@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub README SVG Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #111827 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            color: #F8FAFC;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 12px;
+            color: #E5E7EB;
+            font-size: 14px;
+        }
+
+        .controls input:focus {
+            outline: none;
+            border-color: #38BDF8;
+        }
+
+        .controls button {
+            padding: 12px 24px;
+            background: #38BDF8;
+            color: #0F172A;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .controls button:hover {
+            background: #0EA5E9;
+        }
+
+        .preview-container {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .preview-container svg {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .loading {
+            color: #94A3B8;
+            font-size: 16px;
+        }
+
+        .error {
+            color: #F87171;
+            font-size: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .info {
+            color: #94A3B8;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GitHub README SVG Preview</h1>
+            <p style="color: #94A3B8;">Preview your GitHub profile SVG locally</p>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="usernameInput" placeholder="Enter GitHub username (default: johndoe)"
+                value="johndoe" />
+            <button onclick="loadSVG()">Generate SVG</button>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <div class="loading">Enter a username and click "Generate SVG" to preview</div>
+        </div>
+
+        <div class="info">
+            Make sure the server is running on port 5000 (or update the URL below)
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/svg';
+
+        async function loadSVG() {
+            const username = document.getElementById('usernameInput').value.trim() || 'johndoe';
+            const container = document.getElementById('previewContainer');
+
+            container.innerHTML = '<div class="loading">Loading SVG...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}?username=${encodeURIComponent(username)}`);
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const svgText = await response.text();
+                container.innerHTML = svgText;
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error">
+                        <strong>Error loading SVG:</strong><br/>
+                        ${error.message}<br/><br/>
+                        <small>Make sure the server is running: <code>npm start</code> or <code>npm run dev</code></small>
+                    </div>
+                `;
+            }
+        }
+
+        // Load on Enter key press
+        document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadSVG();
+            }
+        });
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            loadSVG();
+        });
+    </script>
+</body>
+
+</html>
